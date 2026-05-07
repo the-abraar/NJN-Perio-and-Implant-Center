@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isDentist() {
+      return request.auth != null
+        && request.auth.uid == "REPLACE_WITH_DENTIST_AUTH_UID";
+    }
+
+    function isValidPatientCreate() {
+      return request.resource.data.keys().hasOnly([
+          "patientName",
+          "patientAge",
+          "patientPhone",
+          "description",
+          "fileURL",
+          "slotStart",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.patientName is string
+        && request.resource.data.patientName.size() >= 2
+        && request.resource.data.patientAge is number
+        && request.resource.data.patientAge >= 1
+        && request.resource.data.patientAge <= 120
+        && request.resource.data.patientPhone is string
+        && request.resource.data.patientPhone.size() >= 8
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 600
+        && (request.resource.data.fileURL == null || request.resource.data.fileURL is string)
+        && request.resource.data.slotStart is timestamp
+        && request.resource.data.status == "pending";
+    }
+
+    match /appointments/{appointmentId} {
+      allow read: if true;
+      allow create: if isValidPatientCreate()
+        && !exists(/databases/$(database)/documents/appointments/$(appointmentId));
+      allow update: if isDentist()
+        || (resource.data.status == "cancelled" && isValidPatientCreate());
+      allow delete: if false;
+    }
+
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isDentist();
+    }
+  }
+}

@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isDentist() {
+      return request.auth != null
+        && request.auth.uid == "REPLACE_WITH_DENTIST_AUTH_UID";
+    }
+
+    match /appointment-images/{fileName} {
+      allow read: if true;
+      allow create: if request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow update, delete: if isDentist();
+    }
+  }
+}
