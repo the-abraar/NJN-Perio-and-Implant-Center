@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'firebase_options.dart';
+import 'services/onesignal_service.dart';
 
 const teal = Color(0xFF008080);
+const oneSignalAppId = '250e80e8-270a-4b37-8315-f2906460d6a7';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  OneSignalService().initialize(oneSignalAppId);
   runApp(const NJNDentistApp());
 }
 
@@ -30,8 +33,66 @@ class NJNDentistApp extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _integrationDialogShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupPushSubscriptionObserver();
+  }
+
+  void _setupPushSubscriptionObserver() {
+    final oneSignal = OneSignalService();
+    oneSignal.addPushSubscriptionObserver((state) {
+      _maybeShowIntegrationCompleteDialog(state.current.id);
+    });
+
+    // The subscription ID may already be server-assigned before the
+    // observer attaches, so evaluate the current value immediately too.
+    _maybeShowIntegrationCompleteDialog(oneSignal.currentPushSubscriptionId);
+  }
+
+  bool _isRegistered(String? subscriptionId) =>
+      subscriptionId != null && subscriptionId.isNotEmpty && !subscriptionId.startsWith('local-');
+
+  void _maybeShowIntegrationCompleteDialog(String? subscriptionId) {
+    if (!_isRegistered(subscriptionId) || _integrationDialogShown) return;
+    _integrationDialogShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showIntegrationCompleteDialog();
+    });
+  }
+
+  void _showIntegrationCompleteDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Your OneSignal SDK integration is complete!'),
+        content: const Text(
+          'You can now send Push Notifications & In-App Messages through OneSignal. '
+          'Tap below to enable push notifications.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              OneSignalService().requestPermission();
+            },
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
