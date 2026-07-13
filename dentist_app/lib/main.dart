@@ -7,8 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'firebase_options.dart';
 
 const teal = Color(0xFF008080);
-const dentistEmail = 'doctor@njnperio.com';
-const dentistPassword = 'NJNPerio2026!';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,48 +30,122 @@ class NJNDentistApp extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatefulWidget {
+class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
-
-  @override
-  State<AuthGate> createState() => _AuthGateState();
-}
-
-class _AuthGateState extends State<AuthGate> {
-  String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    _signIn();
-  }
-
-  Future<void> _signIn() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: dentistEmail,
-        password: dentistPassword,
-      );
-    } catch (exception) {
-      setState(() => error = exception.toString());
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
         if (snapshot.hasData) return const PendingRequestsScreen();
-        return Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(error ?? 'Signing in...'),
+        return const LoginScreen();
+      },
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isSubmitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+    } catch (exception) {
+      setState(() => _error = 'Could not sign in. Check your email and password.');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(Icons.local_hospital, size: 48, color: teal),
+                  const SizedBox(height: 8),
+                  Text(
+                    'NJN Dentist Sign In',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.username],
+                    decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                    validator: (value) => (value == null || value.trim().isEmpty) ? 'Enter your email' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    autofillHints: const [AutofillHints.password],
+                    decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Enter your password' : null,
+                    onFieldSubmitted: (_) => _signIn(),
+                  ),
+                  if (_error != null) ...[
+                    const SizedBox(height: 12),
+                    Text(_error!, style: const TextStyle(color: Colors.red)),
+                  ],
+                  const SizedBox(height: 20),
+                  FilledButton(
+                    onPressed: _isSubmitting ? null : _signIn,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Sign In'),
+                  ),
+                ],
+              ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -187,6 +259,10 @@ class RequestDetailsScreen extends StatelessWidget {
       final sent = await confirmSmsSent(context);
       if (sent) {
         await appointment.ref.update({'status': 'booked'});
+        await FirebaseFirestore.instance
+            .collection('slotStatus')
+            .doc(appointment.ref.id)
+            .set({'slotStart': Timestamp.fromDate(appointment.slotStart), 'status': 'booked'});
         if (context.mounted) Navigator.of(context).pop();
       }
     }
@@ -238,10 +314,18 @@ class RequestDetailsScreen extends StatelessWidget {
     if (context.mounted) {
       final sent = await confirmSmsSent(context);
       if (sent) {
+        final originalSlotStart = appointment.slotStart;
         await appointment.ref.update({
           'slotStart': Timestamp.fromDate(newSlot),
           'status': 'booked',
         });
+        final slotStatusCollection = FirebaseFirestore.instance.collection('slotStatus');
+        await slotStatusCollection
+            .doc(appointment.ref.id)
+            .set({'slotStart': Timestamp.fromDate(originalSlotStart), 'status': 'cancelled'});
+        await slotStatusCollection
+            .doc(slotDocId(newSlot))
+            .set({'slotStart': Timestamp.fromDate(newSlot), 'status': 'booked'});
         if (context.mounted) Navigator.of(context).pop();
       }
     }
@@ -249,6 +333,10 @@ class RequestDetailsScreen extends StatelessWidget {
 
   Future<void> _avoid(BuildContext context) async {
     await appointment.ref.update({'status': 'cancelled'});
+    await FirebaseFirestore.instance
+        .collection('slotStatus')
+        .doc(appointment.ref.id)
+        .set({'slotStart': Timestamp.fromDate(appointment.slotStart), 'status': 'cancelled'});
     if (context.mounted) Navigator.of(context).pop();
   }
 }
@@ -320,6 +408,8 @@ class Appointment {
     );
   }
 }
+
+String slotDocId(DateTime date) => 'slot_${date.millisecondsSinceEpoch}';
 
 Future<void> openSms(String phone, String body) async {
   final uri = Uri(

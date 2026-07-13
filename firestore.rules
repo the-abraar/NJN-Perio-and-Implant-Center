@@ -32,12 +32,29 @@ service cloud.firestore {
         && request.resource.data.status == "pending";
     }
 
+    function isValidSlotStatusWrite() {
+      return request.resource.data.keys().hasOnly(["slotStart", "status"])
+        && request.resource.data.slotStart is timestamp
+        && request.resource.data.status in ["pending", "booked", "cancelled"];
+    }
+
     match /appointments/{appointmentId} {
-      allow read: if true;
+      allow read: if isDentist();
       allow create: if isValidPatientCreate()
         && !exists(/databases/$(database)/documents/appointments/$(appointmentId));
       allow update: if isDentist()
         || (resource.data.status == "cancelled" && isValidPatientCreate());
+      allow delete: if false;
+    }
+
+    // Public-safe mirror of appointments: exposes only slot time + status,
+    // never patient name/age/phone/description/fileURL.
+    match /slotStatus/{slotId} {
+      allow read: if true;
+      allow create: if isValidSlotStatusWrite()
+        && !exists(/databases/$(database)/documents/slotStatus/$(slotId))
+        && (request.resource.data.status == "pending" || isDentist());
+      allow update: if isDentist() && isValidSlotStatusWrite();
       allow delete: if false;
     }
 

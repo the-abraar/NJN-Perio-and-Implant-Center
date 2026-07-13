@@ -127,7 +127,7 @@ function subscribeToDate(dateValue) {
   const dayEnd = addDays(dayStart, 1);
   const { db, firestoreSdk } = state.firebase;
   const appointmentsQuery = firestoreSdk.query(
-    firestoreSdk.collection(db, "appointments"),
+    firestoreSdk.collection(db, "slotStatus"),
     firestoreSdk.where("slotStart", ">=", firestoreSdk.Timestamp.fromDate(dayStart)),
     firestoreSdk.where("slotStart", "<", firestoreSdk.Timestamp.fromDate(dayEnd))
   );
@@ -267,18 +267,26 @@ async function uploadProblemImage(docId, image) {
 async function bookSlot(docId, payload) {
   const { db, firestoreSdk } = state.firebase;
   const appointmentRef = firestoreSdk.doc(db, "appointments", docId);
+  const slotStatusRef = firestoreSdk.doc(db, "slotStatus", docId);
 
   await firestoreSdk.runTransaction(db, async transaction => {
-    const existing = await transaction.get(appointmentRef);
+    const existing = await transaction.get(slotStatusRef);
     if (existing.exists() && ["pending", "booked"].includes(existing.data().status)) {
       throw new Error("That slot was just taken. Please choose another free slot.");
     }
 
+    const slotStart = firestoreSdk.Timestamp.fromDate(payload.slotStart);
+
     transaction.set(appointmentRef, {
       ...payload,
-      slotStart: firestoreSdk.Timestamp.fromDate(payload.slotStart),
+      slotStart,
       status: "pending",
       createdAt: firestoreSdk.serverTimestamp()
+    });
+
+    transaction.set(slotStatusRef, {
+      slotStart,
+      status: "pending"
     });
   });
 }

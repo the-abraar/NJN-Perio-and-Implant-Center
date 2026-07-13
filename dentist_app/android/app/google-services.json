@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "857086812934",
+    "project_id": "njn-perio-implant-2026",
+    "storage_bucket": "njn-perio-implant-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857086812934:android:c21db1f8bbae1a0d7a3487",
+        "android_client_info": {
+          "package_name": "com.example.njnDentistApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "857086812934-l3k0see4i0qqag3kgtmeqmb5g2palub7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlmF2XRgib2pewTKjW37_uTcQoPkaxcPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "857086812934-l3k0see4i0qqag3kgtmeqmb5g2palub7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "857086812934-11bs7907vgusepjjbtqm7cd20kel5qmb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.njnDentistApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

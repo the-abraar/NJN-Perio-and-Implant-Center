@@ -3,6 +3,8 @@
   --primary-dark: #006666;
   --secondary: #e6f7ff;
   --accent: #ffc107;
+  --brand-blue: #1a56db;
+  --brand-blue-dark: #123f9e;
   --free: #28a745;
   --booked: #dc3545;
   --text: #2c3e50;
@@ -305,6 +307,7 @@ h3 {
   margin: 0 auto;
   max-width: 1160px;
   padding: 4.5rem 1rem;
+  position: relative;
 }
 
 .section-heading {
@@ -321,14 +324,33 @@ h3 {
 .service-card {
   background: var(--secondary);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 12px;
   min-height: 220px;
-  padding: 1.1rem;
+  padding: 1.35rem;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.service-card span {
-  color: var(--primary-dark);
-  font-weight: 900;
+.service-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+  transform: translateY(-4px);
+}
+
+.service-icon {
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--brand-blue));
+  border-radius: 12px;
+  color: white;
+  display: inline-flex;
+  height: 2.75rem;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+  width: 2.75rem;
+}
+
+.service-icon svg {
+  height: 1.5rem;
+  width: 1.5rem;
 }
 
 .service-card p,
@@ -341,6 +363,77 @@ h3 {
 .faq-section,
 .appointment-section {
   background: #fbfdfe;
+}
+
+.query-section,
+.pricing-section {
+  overflow: hidden;
+}
+
+.wave-blob {
+  background: radial-gradient(circle, rgba(26, 86, 219, 0.16), transparent 68%);
+  border-radius: 50%;
+  height: 420px;
+  pointer-events: none;
+  position: absolute;
+  right: -140px;
+  top: -160px;
+  width: 420px;
+  z-index: 0;
+}
+
+.wave-blob-alt {
+  background: radial-gradient(circle, rgba(0, 128, 128, 0.14), transparent 68%);
+  left: -160px;
+  right: auto;
+  top: auto;
+  bottom: -180px;
+}
+
+.query-section .section-heading,
+.query-section .query-form,
+.pricing-section .section-heading,
+.pricing-section .pricing-grid,
+.pricing-section .pricing-cta {
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-note {
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.pricing-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 2rem;
+}
+
+.price-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(21, 77, 86, 0.06);
+  padding: 1.35rem;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.price-card:hover {
+  border-color: var(--brand-blue);
+  box-shadow: var(--shadow);
+  transform: translateY(-4px);
+}
+
+.price-tag {
+  color: var(--brand-blue-dark);
+  font-weight: 800;
+  margin: 0.6rem 0 0;
+}
+
+.pricing-cta {
+  display: inline-flex;
 }
 
 .faq-list {
@@ -626,7 +719,8 @@ label small {
     max-width: 12ch;
   }
 
-  .service-grid {
+  .service-grid,
+  .pricing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -640,6 +734,7 @@ label small {
   }
 
   .service-grid,
+  .pricing-grid,
   .slot-grid {
     grid-template-columns: 1fr;
   }
