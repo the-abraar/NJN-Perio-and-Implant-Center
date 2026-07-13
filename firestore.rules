@@ -4,7 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isDentist() {
       return request.auth != null
-        && request.auth.uid == "REPLACE_WITH_DENTIST_AUTH_UID";
+        && request.auth.uid == "nXfM7K8iYYaMcYgviUUO6sTdxyi1";
     }
 
     function isValidPatientCreate() {

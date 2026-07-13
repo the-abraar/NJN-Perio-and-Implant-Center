@@ -7,8 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'firebase_options.dart';
 
 const teal = Color(0xFF008080);
-const dentistEmail = 'doctor@example.com';
-const dentistPassword = 'CHANGE_ME';
+const dentistEmail = 'doctor@njnperio.com';
+const dentistPassword = 'NJNPerio2026!';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
