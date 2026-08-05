@@ -81,7 +81,7 @@ function setupPriceCarousel() {
       } else {
         scrollByCards(1);
       }
-    }, 4000);
+    }, 2500);
   }
 
   function stopAutoScroll() {
