@@ -435,35 +435,34 @@ h3 {
 .deal-list {
   display: grid;
   gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 2rem;
 }
 
-.deal-category {
+.deal-ticker {
   background: white;
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
   border-radius: 10px;
   box-shadow: 0 12px 30px rgba(21, 77, 86, 0.06);
   padding: 1rem 1.25rem;
+  transition: box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.deal-category[open] {
+.deal-ticker:hover,
+.deal-ticker:focus-within {
+  border-color: var(--brand-blue);
   box-shadow: var(--shadow);
 }
 
-.deal-category summary {
+.deal-ticker-header {
   align-items: center;
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  list-style: none;
 }
 
-.deal-category summary::-webkit-details-marker {
-  display: none;
-}
-
-.deal-category summary span:first-child {
+.deal-ticker-header span:first-child {
   font-family: Poppins, Inter, sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
@@ -481,26 +480,50 @@ h3 {
   white-space: nowrap;
 }
 
-.deal-table {
-  border-collapse: collapse;
-  margin-top: 0.9rem;
-  width: 100%;
+.deal-ticker-viewport {
+  height: 9.75rem;
+  margin-top: 0.85rem;
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 }
 
-.deal-table td {
+.deal-ticker-track {
+  animation: deal-scroll var(--duration, 18s) linear infinite;
+}
+
+.deal-ticker:hover .deal-ticker-track,
+.deal-ticker:focus-within .deal-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes deal-scroll {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.deal-row {
+  align-items: center;
   border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding: 0.65rem 0;
+}
+
+.deal-row span:first-child {
   color: var(--text);
-  padding: 0.6rem 0;
+  font-weight: 600;
 }
 
-.deal-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.deal-table td:last-child {
+.deal-price {
   color: var(--brand-blue-dark);
-  font-weight: 800;
-  text-align: right;
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  font-weight: 900;
   white-space: nowrap;
 }
 
@@ -846,7 +869,8 @@ label small {
 
   .service-grid,
   .pricing-grid,
-  .slot-grid {
+  .slot-grid,
+  .deal-list {
     grid-template-columns: 1fr;
   }
 
@@ -854,11 +878,11 @@ label small {
     flex-basis: auto;
   }
 
-  .deal-table td {
+  .deal-row span:first-child {
     font-size: 0.92rem;
   }
 
-  .deal-category summary {
+  .deal-ticker-header {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.35rem;
@@ -892,5 +916,18 @@ label small {
     animation-duration: 1ms !important;
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
+  }
+
+  .deal-ticker-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .deal-ticker-viewport {
+    overflow-y: auto;
+  }
+
+  .deal-ticker-set[aria-hidden] {
+    display: none;
   }
 }
