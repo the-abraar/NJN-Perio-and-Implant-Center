@@ -366,7 +366,8 @@ h3 {
 }
 
 .query-section,
-.pricing-section {
+.pricing-section,
+.deal-section {
   overflow: hidden;
 }
 
@@ -394,9 +395,119 @@ h3 {
 .query-section .query-form,
 .pricing-section .section-heading,
 .pricing-section .pricing-grid,
-.pricing-section .pricing-cta {
+.pricing-section .pricing-cta,
+.deal-section .deal-banner,
+.deal-section .section-heading,
+.deal-section .deal-list,
+.deal-section .pricing-cta {
   position: relative;
   z-index: 1;
+}
+
+.deal-banner {
+  align-items: center;
+  background: linear-gradient(115deg, #fff4d6, #ffe6a8);
+  border: 1px solid #f0c94c;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.deal-banner p {
+  color: #6b4e00;
+  font-weight: 600;
+  margin: 0;
+}
+
+.deal-badge {
+  background: var(--accent);
+  border-radius: 999px;
+  color: #4a3600;
+  flex: 0 0 auto;
+  font-weight: 900;
+  padding: 0.35rem 0.85rem;
+  white-space: nowrap;
+}
+
+.deal-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.deal-category {
+  background: white;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(21, 77, 86, 0.06);
+  padding: 1rem 1.25rem;
+}
+
+.deal-category[open] {
+  box-shadow: var(--shadow);
+}
+
+.deal-category summary {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.deal-category summary::-webkit-details-marker {
+  display: none;
+}
+
+.deal-category summary span:first-child {
+  font-family: Poppins, Inter, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.deal-tag {
+  background: #fff4d6;
+  border-radius: 999px;
+  color: #8a6400;
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.deal-table {
+  border-collapse: collapse;
+  margin-top: 0.9rem;
+  width: 100%;
+}
+
+.deal-table td {
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.6rem 0;
+}
+
+.deal-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.deal-table td:last-child {
+  color: var(--brand-blue-dark);
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.deal-footnote {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0.75rem 0 0;
 }
 
 .pricing-note {
@@ -741,6 +852,16 @@ label small {
 
   .whatsapp {
     flex-basis: auto;
+  }
+
+  .deal-table td {
+    font-size: 0.92rem;
+  }
+
+  .deal-category summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
   .mobile-emergency {
