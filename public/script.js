@@ -40,10 +40,63 @@ init();
 async function init() {
   setupDateInput();
   setupEvents();
+  setupPriceCarousel();
   state.firebase = await initFirebase();
   await loadBusinessConfig();
   renderSlots();
   subscribeToDate(els.date.value);
+}
+
+function setupPriceCarousel() {
+  const track = document.querySelector("#deal-carousel-track");
+  if (!track) return;
+
+  const prevButton = document.querySelector(".deal-scroll-prev");
+  const nextButton = document.querySelector(".deal-scroll-next");
+
+  function cardStep() {
+    const card = track.querySelector(".deal-popup");
+    if (!card) return track.clientWidth;
+    const gap = parseFloat(getComputedStyle(track).columnGap || "0");
+    return card.getBoundingClientRect().width + gap;
+  }
+
+  function scrollByCards(direction) {
+    track.scrollBy({ left: direction * cardStep(), behavior: "smooth" });
+  }
+
+  prevButton?.addEventListener("click", () => scrollByCards(-1));
+  nextButton?.addEventListener("click", () => scrollByCards(1));
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let autoScrollTimer = null;
+
+  function startAutoScroll() {
+    stopAutoScroll();
+    autoScrollTimer = setInterval(() => {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (track.scrollLeft >= maxScroll - 4) {
+        track.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        scrollByCards(1);
+      }
+    }, 4000);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollTimer) clearInterval(autoScrollTimer);
+    autoScrollTimer = null;
+  }
+
+  track.addEventListener("mouseenter", stopAutoScroll);
+  track.addEventListener("mouseleave", startAutoScroll);
+  track.addEventListener("focusin", stopAutoScroll);
+  track.addEventListener("focusout", startAutoScroll);
+  track.addEventListener("touchstart", stopAutoScroll, { passive: true });
+  track.addEventListener("touchend", () => setTimeout(startAutoScroll, 3000), { passive: true });
+
+  startAutoScroll();
 }
 
 function setupDateInput() {
