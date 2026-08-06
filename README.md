@@ -93,3 +93,5 @@ For production, prefer moving the dentist email/password out of source code befo
 8. Firestore status becomes `booked`.
 
 Avoid marks the request `cancelled`, which makes the slot reusable on the website.
+
+TEST
