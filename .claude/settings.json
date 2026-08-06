@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase deploy *)",
+      "Bash(npx firebase-tools deploy *)",
+      "Bash(npx -y firebase-tools deploy *)",
+      "Bash(bash tools/deploy.sh*)",
+      "Bash(tools/deploy.sh*)"
+    ]
+  }
+}
