@@ -93,15 +93,9 @@ textarea {
 }
 
 .brand-icon {
-  align-items: center;
-  background: var(--primary);
-  border-radius: 50%;
-  color: white;
-  display: inline-flex;
-  font-size: 1.5rem;
-  font-weight: 700;
+  display: inline-block;
   height: 2.75rem;
-  justify-content: center;
+  object-fit: contain;
   width: 2.75rem;
 }
 
