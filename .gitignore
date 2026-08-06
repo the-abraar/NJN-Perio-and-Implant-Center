@@ -1,0 +1,13 @@
+# Firebase CLI
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firebase-tools-instant-win.exe
+firebase-tools-instant-*
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
