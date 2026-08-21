@@ -1,4 +1,13 @@
-# Firebase CLI
+# macOS
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Firebase CLI / deploy cache
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
@@ -7,7 +16,3 @@ firebase-tools-instant-*
 
 # Node
 node_modules/
-
-# OS
-.DS_Store
-Thumbs.db
