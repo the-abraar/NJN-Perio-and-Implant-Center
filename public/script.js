@@ -2,7 +2,7 @@ const clinicWhatsAppNumber = "8801779172808";
 const doctorPhone = "+8801779172808";
 const assistantPhone = "+8801327045005";
 const defaultConfig = {
-  workStart: "18:00",
+  workStart: "17:00",
   workEnd: "22:00",
   slotMinutes: 45,
   offDays: [5]
@@ -162,7 +162,7 @@ async function loadBusinessConfig() {
       Object.assign(defaultConfig, snapshot.data());
     }
   } catch (error) {
-    announce("Could not load clinic hours. Using default 6:00 PM-10:00 PM schedule.");
+    announce("Could not load clinic hours. Using default 5:00 PM-10:00 PM schedule.");
   }
 }
 

@@ -19,7 +19,7 @@ Completed:
 - WhatsApp query form that opens a pre-filled WhatsApp message to the clinic number.
 - Appointment picker for the next 30 days.
 - Friday appointments disabled.
-- 45-minute slots from 6:00 PM to 10:00 PM.
+- 45-minute slots from 5:00 PM to 10:00 PM.
 - Slot statuses: Free, Pending, and Booked.
 - Booking form with name, age, phone, optional description, and optional image upload.
 - File validation for image-only uploads under 5 MB.
@@ -102,7 +102,7 @@ Data:
 
 ```json
 {
-  "workStart": "18:00",
+  "workStart": "17:00",
   "workEnd": "22:00",
   "slotMinutes": 45,
   "offDays": [5]
