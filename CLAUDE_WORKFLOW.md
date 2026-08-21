@@ -31,6 +31,11 @@ or the deploy/tooling setup changes, and commits it along with the related work.
 
 ## Environment notes (this machine)
 
+- On the macOS machine, `tools/deploy.sh` does not run — its hardcoded
+  `C:\Program Files\nodejs` paths are Windows-only. There the Firebase CLI is
+  on PATH at `/usr/local/bin/firebase` (v15.23.0, logged in as
+  `blankframe.technologies@gmail.com`), so Claude deploys with
+  `firebase deploy --only hosting` directly.
 - Node.js is installed system-wide at `C:\Program Files\nodejs` (v24.19.0). The
   Bash/PowerShell tool sessions Claude uses don't pick up PATH changes made
   after a session starts, so Claude invokes `npx`/`node` via the full path
@@ -46,6 +51,14 @@ or the deploy/tooling setup changes, and commits it along with the related work.
   this repo).
 
 ## Change log
+
+- **2026-08-21** — Moved clinic hours to 5:00 PM - 10:00 PM in the site copy and
+  the `defaultConfig` fallback in `public/script.js`. The live slot grid is
+  driven by the Firestore `config/businessHours` document, which overrides those
+  defaults, so that document still needs `workStart: "17:00"` /
+  `workEnd: "22:00"` — the sandbox blocks Claude from signing in to write it, so
+  it is left to the user (helper script written to the session scratchpad).
+  Deployed to njndental.com.
 
 - **2026-08-07** — Replaced the top-bar "+" logo with an implant-tooth image
   (`public/images/logo-tooth-implant.png`), pinned the default Firebase
