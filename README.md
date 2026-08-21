@@ -19,7 +19,7 @@ The website includes:
 - Clinic hero, services, FAQ, address, phone, and map link
 - WhatsApp query box using `https://wa.me/8801779172808`
 - Emergency call button
-- 45-minute appointment slots from 9:00 AM to 5:00 PM
+- 45-minute appointment slots from 6:00 PM to 10:00 PM
 - Fridays disabled
 - Real-time slot statuses: free, pending, booked
 - Booking form with name, age, phone, optional description, and image upload
@@ -43,8 +43,8 @@ The website includes:
   "collection": "config",
   "document": "businessHours",
   "data": {
-    "workStart": "09:00",
-    "workEnd": "17:00",
+    "workStart": "18:00",
+    "workEnd": "22:00",
     "slotMinutes": 45,
     "offDays": [5]
   }

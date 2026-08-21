@@ -26,7 +26,7 @@ SECTIONS = [
             "2. Enable Firestore, Storage, Hosting, and Firebase Auth with Email/Password.",
             "3. Create one dentist Auth user, copy the UID, and replace REPLACE_WITH_DENTIST_AUTH_UID in firestore.rules and storage.rules.",
             "4. Copy public/firebase-config.sample.js to public/firebase-config.js and paste the real Firebase web config.",
-            "5. Create config/businessHours in Firestore with workStart 09:00, workEnd 17:00, slotMinutes 45, and offDays [5].",
+            "5. Create config/businessHours in Firestore with workStart 18:00, workEnd 22:00, slotMinutes 45, and offDays [5].",
             "6. Deploy with: firebase deploy --only hosting,firestore:rules,storage",
             "7. Replace placeholders in dentist_app/lib/firebase_options.dart.",
             "8. Replace doctor@example.com and CHANGE_ME in dentist_app/lib/main.dart with the dentist Auth credentials for testing.",
