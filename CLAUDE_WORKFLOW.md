@@ -56,8 +56,13 @@ or the deploy/tooling setup changes, and commits it along with the related work.
   the `defaultConfig` fallback in `public/script.js`. The live slot grid is
   driven by the Firestore `config/businessHours` document, which overrides those
   defaults, so that document still needs `workStart: "17:00"` /
-  `workEnd: "22:00"` — the sandbox blocks Claude from signing in to write it, so
-  it is left to the user (helper script written to the session scratchpad).
+  `workEnd: "22:00"`. The helper for this now lives in the repo as
+  `tools/set_business_hours.sh` (it was previously left in a session
+  scratchpad and lost). It PATCHes only workStart/workEnd via the Firestore
+  REST API, so slotMinutes and offDays are preserved. It needs Application
+  Default Credentials — the firebase CLI login does not expose a
+  datastore-scoped token — so run `gcloud auth application-default login`
+  once, then `tools/set_business_hours.sh 17:00 22:00`.
   Deployed to njndental.com.
 
 - **2026-08-07** — Replaced the top-bar "+" logo with an implant-tooth image
