@@ -366,6 +366,7 @@ class RequestDetailsScreen extends StatelessWidget {
       }
       return;
     }
+    if (!context.mounted) return;
 
     final formatted = MaterialLocalizations.of(context).formatFullDate(newSlot);
     final time = MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(newSlot));
