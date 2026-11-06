@@ -1,0 +1,12 @@
+reviews:
+  profile: assertive
+  path_instructions:
+    - path: "{firestore.rules,storage.rules}"
+      instructions: |
+        Patient data in a dental clinic app. Flag any rule that widens access or skips auth/ownership checks.
+    - path: "dentist_app/**/*.dart"
+      instructions: |
+        Flutter app handling patient data. Flag privacy leaks, secrets in code, and unawaited futures.
+
+tone_instructions: |
+  Be concise, direct, and constructive.
