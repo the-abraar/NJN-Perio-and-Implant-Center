@@ -52,6 +52,16 @@ or the deploy/tooling setup changes, and commits it along with the related work.
 
 ## Change log
 
+- **2026-11-08** (branch `agent/njn-booking`, not deployed): booking form no
+  longer uploads photos (the Storage step failed before the Firestore write, so
+  requests with a photo were lost). Requests always save with `fileURL: null`;
+  a hint asks patients to send photos on WhatsApp, and after saving an "Also
+  tell the clinic on WhatsApp" button opens a pre-filled message. Firebase
+  errors now show a plain "call the clinic" message with the doctor's number.
+  A saved request cannot be resubmitted from the same modal, and the modal's
+  focus trap skips hidden controls.
+  Check: `tools/booking_e2e.mjs` (emulators only, see README).
+
 - **2026-08-21** — Moved clinic hours to 5:00 PM - 10:00 PM in the site copy and
   the `defaultConfig` fallback in `public/script.js`. The live slot grid is
   driven by the Firestore `config/businessHours` document, which overrides those

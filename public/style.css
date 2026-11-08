@@ -816,9 +816,20 @@ label small {
   gap: 1rem;
 }
 
-.submit-button {
+.submit-button,
+#whatsapp-handoff {
   margin-top: 1rem;
   width: 100%;
+}
+
+.button[hidden] {
+  display: none;
+}
+
+.form-hint {
+  color: var(--muted);
+  font-weight: 500;
+  margin: 1rem 0 0;
 }
 
 .spinner {

@@ -296,17 +296,14 @@
               Problem description
               <textarea name="description" rows="4" maxlength="600" placeholder="Optional"></textarea>
             </label>
-            <label>
-              Upload image
-              <input name="problemImage" type="file" accept="image/*" aria-describedby="file-help">
-              <small id="file-help">Optional, image only, maximum 5 MB.</small>
-            </label>
           </div>
+          <p class="form-hint">Have photos or X-rays? Send them to the clinic on WhatsApp after you book.</p>
           <div id="form-status" class="live-message" role="status" aria-live="polite"></div>
           <button class="button primary submit-button" type="submit">
             <span class="spinner" aria-hidden="true"></span>
             Submit Request
           </button>
+          <a class="button ghost" id="whatsapp-handoff" target="_blank" rel="noopener" hidden>Also tell the clinic on WhatsApp</a>
         </form>
       </section>
     </div>

@@ -1,6 +1,7 @@
 const clinicWhatsAppNumber = "8801779172808";
 const doctorPhone = "+8801779172808";
 const assistantPhone = "+8801327045005";
+const clinicPhoneDisplay = "+880 1779-172808";
 const defaultConfig = {
   workStart: "17:00",
   workEnd: "22:00",
@@ -10,8 +11,7 @@ const defaultConfig = {
 
 const firebaseModules = {
   app: "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js",
-  firestore: "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js",
-  storage: "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js"
+  firestore: "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"
 };
 
 const state = {
@@ -32,7 +32,8 @@ const els = {
   closeModal: document.querySelector("#close-modal"),
   selectedSlotCopy: document.querySelector("#selected-slot-copy"),
   bookingForm: document.querySelector("#booking-form"),
-  formStatus: document.querySelector("#form-status")
+  formStatus: document.querySelector("#form-status"),
+  whatsAppHandoff: document.querySelector("#whatsapp-handoff")
 };
 
 init();
@@ -135,17 +136,15 @@ function setupEvents() {
 
 async function initFirebase() {
   try {
-    const [{ firebaseConfig }, appSdk, firestoreSdk, storageSdk] = await Promise.all([
+    const [{ firebaseConfig }, appSdk, firestoreSdk] = await Promise.all([
       import("./firebase-config.js"),
       import(firebaseModules.app),
-      import(firebaseModules.firestore),
-      import(firebaseModules.storage)
+      import(firebaseModules.firestore)
     ]);
 
     const app = appSdk.initializeApp(firebaseConfig);
     const db = firestoreSdk.getFirestore(app);
-    const storage = storageSdk.getStorage(app);
-    return { db, storage, firestoreSdk, storageSdk };
+    return { db, firestoreSdk };
   } catch (error) {
     announce("Firebase is not configured yet. Slots are shown in demo mode.");
     return null;
@@ -256,7 +255,6 @@ async function submitBooking(event) {
   if (!state.selectedSlot) return;
 
   const formData = new FormData(els.bookingForm);
-  const image = formData.get("problemImage");
   const patientName = String(formData.get("patientName") || "").trim();
   const patientAge = Number(formData.get("patientAge"));
   const patientPhone = String(formData.get("patientPhone") || "").trim();
@@ -267,19 +265,9 @@ async function submitBooking(event) {
     return;
   }
 
-  if (image && image.size) {
-    if (!image.type.startsWith("image/")) {
-      setFormStatus("Please upload an image file only.");
-      return;
-    }
-    if (image.size > 5 * 1024 * 1024) {
-      setFormStatus("Please keep the image under 5 MB.");
-      return;
-    }
-  }
-
   if (!state.firebase) {
-    setFormStatus("Firebase is not configured yet. Please call the clinic to book.");
+    setFormStatus(`Online booking is unavailable right now. Please call the clinic at ${clinicPhoneDisplay}.`);
+    showWhatsAppHandoff(false, patientName);
     return;
   }
 
@@ -289,32 +277,47 @@ async function submitBooking(event) {
   setFormStatus("Submitting your request...");
 
   try {
-    const docId = slotDocId(state.selectedSlot.start);
-    const fileURL = image && image.size ? await uploadProblemImage(docId, image) : null;
-    await bookSlot(docId, {
+    await bookSlot(slotDocId(state.selectedSlot.start), {
       patientName,
       patientAge,
       patientPhone,
       description,
-      fileURL,
+      fileURL: null,
       slotStart: state.selectedSlot.start
     });
     setFormStatus("Appointment request sent. The slot is pending until the doctor confirms by SMS.");
-    setTimeout(closeBookingModal, 900);
+    submitButton.hidden = true;
+    showWhatsAppHandoff(true, patientName);
+    state.selectedSlot = null; // Enter in a field must not resubmit; openBookingModal sets the next slot.
   } catch (error) {
-    setFormStatus(error.message || "Could not submit the request. Please try again.");
+    setFormStatus(bookingErrorMessage(error));
+    if (error.code) showWhatsAppHandoff(false, patientName);
   } finally {
     submitButton.disabled = false;
     submitButton.classList.remove("is-submitting");
   }
 }
 
-async function uploadProblemImage(docId, image) {
-  const { storage, storageSdk } = state.firebase;
-  const extension = image.name.split(".").pop() || "jpg";
-  const imageRef = storageSdk.ref(storage, `appointment-images/${docId}-${Date.now()}.${extension}`);
-  const snapshot = await storageSdk.uploadBytes(imageRef, image, { contentType: image.type });
-  return storageSdk.getDownloadURL(snapshot.ref);
+// Firebase errors carry a code; our own "slot taken" error has none and is already patient-friendly.
+function bookingErrorMessage(error) {
+  if (error.code === "permission-denied") {
+    return `This slot can't be booked online. Please call the clinic at ${clinicPhoneDisplay}.`;
+  }
+  if (error.code) {
+    return `Could not submit the request. Please try again or call the clinic at ${clinicPhoneDisplay}.`;
+  }
+  return error.message || "Could not submit the request. Please try again.";
+}
+
+function showWhatsAppHandoff(booked, patientName) {
+  const firstName = patientName.split(/\s+/)[0];
+  const when = `${formatDate(state.selectedSlot.start)} at ${formatTime(state.selectedSlot.start)}`;
+  const text = booked
+    ? `Hello, this is ${firstName}. I just requested an appointment on ${when} through the website.`
+    : `Hello, this is ${firstName}. I tried to book ${when} on the website but it did not go through. Can you help?`;
+  els.whatsAppHandoff.href = `https://wa.me/${clinicWhatsAppNumber}?text=${encodeURIComponent(text)}`;
+  els.whatsAppHandoff.textContent = booked ? "Also tell the clinic on WhatsApp" : "Tell the clinic on WhatsApp";
+  els.whatsAppHandoff.hidden = false;
 }
 
 async function bookSlot(docId, payload) {
@@ -349,6 +352,8 @@ function openBookingModal(slot) {
   els.selectedSlotCopy.textContent = `${formatDate(slot.start)} at ${formatTime(slot.start)}-${formatTime(slot.end)}`;
   els.formStatus.textContent = "";
   els.bookingForm.reset();
+  els.bookingForm.querySelector(".submit-button").hidden = false;
+  els.whatsAppHandoff.hidden = true;
   els.modal.hidden = false;
   document.body.classList.add("modal-open");
   els.modalPanel.focus();
@@ -366,7 +371,9 @@ function handleGlobalKeydown(event) {
 }
 
 function trapModalFocus(event) {
-  const focusable = els.modal.querySelectorAll("a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])");
+  // Skip hidden controls (WhatsApp link before a request, submit button after one) or Tab escapes the modal.
+  const focusable = [...els.modal.querySelectorAll("a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])")]
+    .filter(el => !el.hidden && el.offsetParent !== null);
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
   if (!first || !last) return;
