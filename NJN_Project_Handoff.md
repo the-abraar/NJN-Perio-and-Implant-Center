@@ -32,8 +32,8 @@ Completed:
 Completed:
 
 - `firebase.json` for Firebase Hosting, Firestore rules, and Storage rules.
-- `firestore.rules` for public appointment reads, patient pending requests, and dentist-only updates.
-- `storage.rules` for patient image uploads under 5 MB and dentist-controlled updates/deletes.
+- `firestore.rules` for public slot-status reads, patient pending requests (appointment and slot status written together, re-booking declined slots allowed), and dentist-only appointment reads and updates. Tests: `npm run test:rules`.
+- `storage.rules` for patient image uploads under 5 MB, dentist-only reads, and dentist-controlled updates/deletes.
 - `public/firebase-config.sample.js` as a template for the real Firebase web config.
 
 ### Dentist Flutter App

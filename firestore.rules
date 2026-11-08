@@ -29,7 +29,49 @@ service cloud.firestore {
         && request.resource.data.description.size() <= 600
         && (request.resource.data.fileURL == null || request.resource.data.fileURL is string)
         && request.resource.data.slotStart is timestamp
-        && request.resource.data.status == "pending";
+        && request.resource.data.status == "pending"
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Doc ids are slot_<slotStart millis>; online bookings only for the next 60 days.
+    function isBookableSlot(slotId, slotStart) {
+      return slotStart is timestamp
+        && slotStart > request.time
+        && slotStart < request.time + duration.value(60, "d")
+        && slotId == "slot_" + string(slotStart.toMillis());
+    }
+
+    function slotStatusPath(slotId) {
+      return /databases/$(database)/documents/slotStatus/$(slotId);
+    }
+
+    function appointmentPath(slotId) {
+      return /databases/$(database)/documents/appointments/$(slotId);
+    }
+
+    // A patient may only take a slot that is free or was declined (cancelled).
+    function isSlotFree(slotId) {
+      return !exists(slotStatusPath(slotId))
+        || get(slotStatusPath(slotId)).data.status == "cancelled";
+    }
+
+    // Patient booking: the appointment and its pending slotStatus must be
+    // written together in one batch/transaction.
+    function isPatientBooking(slotId) {
+      return isValidPatientCreate()
+        && isBookableSlot(slotId, request.resource.data.slotStart)
+        && isSlotFree(slotId)
+        && getAfter(slotStatusPath(slotId)).data.status == "pending"
+        && getAfter(slotStatusPath(slotId)).data.slotStart == request.resource.data.slotStart;
+    }
+
+    function isPatientSlotStatus(slotId) {
+      return isValidSlotStatusWrite()
+        && request.resource.data.status == "pending"
+        && isBookableSlot(slotId, request.resource.data.slotStart)
+        && getAfter(appointmentPath(slotId)).data.status == "pending"
+        && getAfter(appointmentPath(slotId)).data.createdAt == request.time
+        && getAfter(appointmentPath(slotId)).data.slotStart == request.resource.data.slotStart;
     }
 
     function isValidSlotStatusWrite() {
@@ -40,10 +82,10 @@ service cloud.firestore {
 
     match /appointments/{appointmentId} {
       allow read: if isDentist();
-      allow create: if isValidPatientCreate()
-        && !exists(/databases/$(database)/documents/appointments/$(appointmentId));
+      allow create: if isPatientBooking(appointmentId);
+      // Re-booking a declined slot overwrites its cancelled appointment.
       allow update: if isDentist()
-        || (resource.data.status == "cancelled" && isValidPatientCreate());
+        || (resource.data.status == "cancelled" && isPatientBooking(appointmentId));
       allow delete: if false;
     }
 
@@ -51,10 +93,10 @@ service cloud.firestore {
     // never patient name/age/phone/description/fileURL.
     match /slotStatus/{slotId} {
       allow read: if true;
-      allow create: if isValidSlotStatusWrite()
-        && !exists(/databases/$(database)/documents/slotStatus/$(slotId))
-        && (request.resource.data.status == "pending" || isDentist());
-      allow update: if isDentist() && isValidSlotStatusWrite();
+      allow create: if (isDentist() && isValidSlotStatusWrite())
+        || isPatientSlotStatus(slotId);
+      allow update: if (isDentist() && isValidSlotStatusWrite())
+        || (resource.data.status == "cancelled" && isPatientSlotStatus(slotId));
       allow delete: if false;
     }
 

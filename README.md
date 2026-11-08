@@ -72,6 +72,19 @@ NODE_PATH=/tmp/njn-e2e/node_modules PATH=/tmp/njn-e2e/node_modules/.bin:$PATH no
 
 It uses ports 18940-18944 by default; set `E2E_PORT` to move them.
 
+## Security rules
+
+- Anyone can read `slotStatus` and `config`; only the dentist reads `appointments` and uploaded images.
+- A patient booking must write the `appointments/slot_<millis>` doc and its `pending` `slotStatus` doc in the same batch or transaction, for a slot in the next 60 days. Neither doc can be written alone.
+- A slot the dentist declined (`cancelled`) can be booked again the same way. Pending and booked slots cannot be overwritten.
+
+Run the emulator tests (demo project, nothing touches the live Firebase project; needs Java):
+
+```bash
+npm ci
+npm run test:rules
+```
+
 ## Deploy website
 
 ```bash
