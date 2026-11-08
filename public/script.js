@@ -288,6 +288,7 @@ async function submitBooking(event) {
     setFormStatus("Appointment request sent. The slot is pending until the doctor confirms by SMS.");
     submitButton.hidden = true;
     showWhatsAppHandoff(true, patientName);
+    state.selectedSlot = null; // Enter in a field must not resubmit; openBookingModal sets the next slot.
   } catch (error) {
     setFormStatus(bookingErrorMessage(error));
     if (error.code) showWhatsAppHandoff(false, patientName);
@@ -370,7 +371,9 @@ function handleGlobalKeydown(event) {
 }
 
 function trapModalFocus(event) {
-  const focusable = els.modal.querySelectorAll("a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])");
+  // Skip hidden controls (WhatsApp link before a request, submit button after one) or Tab escapes the modal.
+  const focusable = [...els.modal.querySelectorAll("a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])")]
+    .filter(el => !el.hidden && el.offsetParent !== null);
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
   if (!first || !last) return;

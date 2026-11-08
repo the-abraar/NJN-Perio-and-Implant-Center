@@ -63,7 +63,7 @@ Then open `http://localhost:4173`.
 
 ## Booking flow check
 
-`tools/booking_e2e.mjs` books a slot in headless Chrome against the Firestore and Hosting emulators (project `demo-njn`, never the live project) and checks that both Firestore docs are written with `fileURL: null`, that the WhatsApp button appears, that a refused booking shows the friendly message, and that nothing requests Storage. It needs Java, Chrome, and two npm packages installed outside the repo:
+`tools/booking_e2e.mjs` books a slot in headless Chrome against the Firestore and Hosting emulators (project `demo-njn`, never the live project) and checks that both Firestore docs are written with `fileURL: null`, that the WhatsApp button appears, that pressing Enter after a saved request does not submit it again, that Tab stays inside the booking modal, that a refused booking shows the friendly message, and that nothing requests Storage. It needs Java, Chrome, and two npm packages installed outside the repo:
 
 ```bash
 npm i --prefix /tmp/njn-e2e puppeteer-core@23 firebase-tools

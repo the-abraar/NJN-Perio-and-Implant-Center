@@ -128,6 +128,21 @@ try {
   assert.doesNotMatch(message, /Person|01700000000/, "only the first name goes in the message");
   assert.match(message, /5:00\s?PM/i, message);
 
+  // Enter in a field after success must not resubmit the same slot.
+  await page.focus("input[name=patientName]");
+  await page.keyboard.press("Enter");
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  const afterEnter = await page.$eval("#form-status", el => el.textContent);
+  assert.match(afterEnter, /request sent/i, afterEnter);
+
+  // On a reopened modal, Tab from the last visible control wraps to the first one.
+  await page.click("#close-modal");
+  await (await page.$$("#slot-grid .slot-button"))[1].click();
+  await page.focus(".submit-button");
+  await page.keyboard.press("Tab");
+  const focusedId = await page.evaluate(() => document.activeElement.id);
+  assert.equal(focusedId, "close-modal", "focus trap should wrap past the hidden WhatsApp link");
+
   // 2. A slot the rules refuse (e.g. a cancelled one) shows a friendly message, not a raw Firebase error.
   await page.click("#close-modal");
   await fetch(`${fsUrl}/slotStatus/slot_${slotStarts[2]}`, {

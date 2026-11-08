@@ -58,6 +58,8 @@ or the deploy/tooling setup changes, and commits it along with the related work.
   a hint asks patients to send photos on WhatsApp, and after saving an "Also
   tell the clinic on WhatsApp" button opens a pre-filled message. Firebase
   errors now show a plain "call the clinic" message with the doctor's number.
+  A saved request cannot be resubmitted from the same modal, and the modal's
+  focus trap skips hidden controls.
   Check: `tools/booking_e2e.mjs` (emulators only, see README).
 
 - **2026-08-21** — Moved clinic hours to 5:00 PM - 10:00 PM in the site copy and
