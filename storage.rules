@@ -8,7 +8,7 @@ service firebase.storage {
     }
 
     match /appointment-images/{fileName} {
-      allow read: if true;
+      allow read: if isDentist();
       allow create: if request.resource.size <= 5 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
       allow update, delete: if isDentist();
