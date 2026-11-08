@@ -21,8 +21,9 @@ Completed:
 - Friday appointments disabled.
 - 45-minute slots from 5:00 PM to 10:00 PM.
 - Slot statuses: Free, Pending, and Booked.
-- Booking form with name, age, phone, optional description, and optional image upload.
-- File validation for image-only uploads under 5 MB.
+- Booking form with name, age, phone, and optional description. The image upload was removed (November 2026); a hint asks patients to send photos on WhatsApp.
+- After a request is saved, an "Also tell the clinic on WhatsApp" button opens a pre-filled message (slot time and first name).
+- Failed bookings show a plain "call the clinic" message instead of raw Firebase errors.
 - Firestore transaction logic to reduce double-booking risk.
 - Accessibility basics: skip link, focus states, live status messages, keyboard-friendly modal, and responsive layout.
 
@@ -138,7 +139,7 @@ Test these items before real patient use:
 - Fridays cannot be booked.
 - Slots update when date changes.
 - Booking form validates name, age, and phone.
-- Image upload rejects non-images and files over 5 MB.
+- Booking with no photo creates both the `appointments` and `slotStatus` docs (`node tools/booking_e2e.mjs`, see README).
 - Patient request creates a Pending slot.
 - Dentist app shows the pending request.
 - Accept opens SMS with the correct confirmation text.

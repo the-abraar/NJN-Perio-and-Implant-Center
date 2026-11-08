@@ -10,7 +10,7 @@ Free appointment website and manual-SMS dentist app for NJN Perio and Implant Ce
 - Storage rules in `storage.rules`
 - Flutter dentist app scaffold in `dentist_app/`
 
-The system uses Firebase Spark-plan services only: Firestore, Storage, Hosting, and Firebase Auth for one dentist account. There are no Cloud Functions, paid SMS APIs, or automated SMS flows.
+The system uses Firebase Spark-plan services only: Firestore, Hosting, and Firebase Auth for one dentist account. The website no longer uploads to Storage; patients send photos on WhatsApp instead. There are no Cloud Functions, paid SMS APIs, or automated SMS flows.
 
 ## Website
 
@@ -22,8 +22,10 @@ The website includes:
 - 45-minute appointment slots from 5:00 PM to 10:00 PM
 - Fridays disabled
 - Real-time slot statuses: free, pending, booked
-- Booking form with name, age, phone, optional description, and image upload
+- Booking form with name, age, phone, and optional description (no file upload: a hint asks patients to send photos or X-rays on WhatsApp)
 - Client-side validation and Firestore transaction booking
+- After a request is saved, an "Also tell the clinic on WhatsApp" button opens a message pre-filled with the slot time and the patient's first name
+- If a booking fails, a plain message asks the patient to call the clinic (+880 1779-172808) and offers the same WhatsApp button, instead of showing a raw Firebase error
 - Accessibility features including skip link, focus styles, live regions, and keyboard-friendly modal controls
 
 ## Firebase setup
@@ -58,6 +60,17 @@ python3 -m http.server 4173 --directory public
 ```
 
 Then open `http://localhost:4173`.
+
+## Booking flow check
+
+`tools/booking_e2e.mjs` books a slot in headless Chrome against the Firestore and Hosting emulators (project `demo-njn`, never the live project) and checks that both Firestore docs are written with `fileURL: null`, that the WhatsApp button appears, that a refused booking shows the friendly message, and that nothing requests Storage. It needs Java, Chrome, and two npm packages installed outside the repo:
+
+```bash
+npm i --prefix /tmp/njn-e2e puppeteer-core@23 firebase-tools
+NODE_PATH=/tmp/njn-e2e/node_modules PATH=/tmp/njn-e2e/node_modules/.bin:$PATH node tools/booking_e2e.mjs
+```
+
+It uses ports 18940-18944 by default; set `E2E_PORT` to move them.
 
 ## Deploy website
 
