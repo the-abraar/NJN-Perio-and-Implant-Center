@@ -17,3 +17,6 @@ firebase-tools-instant-*
 
 # Node
 node_modules/
+
+# Holds credentials; keep local only
+fb.md
