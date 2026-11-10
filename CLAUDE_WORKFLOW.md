@@ -52,6 +52,11 @@ or the deploy/tooling setup changes, and commits it along with the related work.
 
 ## Change log
 
+- **2026-11-10** (branch `agent/njn-seo`, not deployed): `robots.txt`,
+  `sitemap.xml`, `favicon.ico` + 192px icon, a 1200x630 `og-image.png`,
+  canonical/Open Graph tags and `Dentist` JSON-LD (only facts already on the
+  page: address, hours, phones, map link). Hero, booking form and booking
+  status messages now carry Bangla next to the English.
 - **2026-11-08** (branch `agent/njn-booking`, not deployed): booking form no
   longer uploads photos (the Storage step failed before the Firestore write, so
   requests with a photo were lost). Requests always save with `fileURL: null`;

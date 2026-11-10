@@ -261,12 +261,12 @@ async function submitBooking(event) {
   const description = String(formData.get("description") || "").trim();
 
   if (!patientName || !patientAge || !patientPhone) {
-    setFormStatus("Please fill in name, age, and phone.");
+    setFormStatus("Please fill in name, age, and phone. / নাম, বয়স ও ফোন নম্বর লিখুন।");
     return;
   }
 
   if (!state.firebase) {
-    setFormStatus(`Online booking is unavailable right now. Please call the clinic at ${clinicPhoneDisplay}.`);
+    setFormStatus(`Online booking is unavailable right now. Please call the clinic at ${clinicPhoneDisplay}. / এখন অনলাইনে বুকিং করা যাচ্ছে না। ক্লিনিকে ফোন করুন: ${clinicPhoneDisplay}।`);
     showWhatsAppHandoff(false, patientName);
     return;
   }
@@ -274,7 +274,7 @@ async function submitBooking(event) {
   const submitButton = els.bookingForm.querySelector(".submit-button");
   submitButton.disabled = true;
   submitButton.classList.add("is-submitting");
-  setFormStatus("Submitting your request...");
+  setFormStatus("Submitting your request... / অনুরোধ পাঠানো হচ্ছে...");
 
   try {
     await bookSlot(slotDocId(state.selectedSlot.start), {
@@ -285,7 +285,7 @@ async function submitBooking(event) {
       fileURL: null,
       slotStart: state.selectedSlot.start
     });
-    setFormStatus("Appointment request sent. The slot is pending until the doctor confirms by SMS.");
+    setFormStatus("Appointment request sent. The slot is pending until the doctor confirms by SMS. / অনুরোধ পাঠানো হয়েছে। ডাক্তার SMS-এ নিশ্চিত না করা পর্যন্ত সময়টি অপেক্ষমাণ থাকবে।");
     submitButton.hidden = true;
     showWhatsAppHandoff(true, patientName);
     state.selectedSlot = null; // Enter in a field must not resubmit; openBookingModal sets the next slot.
@@ -301,12 +301,12 @@ async function submitBooking(event) {
 // Firebase errors carry a code; our own "slot taken" error has none and is already patient-friendly.
 function bookingErrorMessage(error) {
   if (error.code === "permission-denied") {
-    return `This slot can't be booked online. Please call the clinic at ${clinicPhoneDisplay}.`;
+    return `This slot can't be booked online. Please call the clinic at ${clinicPhoneDisplay}. / এই সময়টি অনলাইনে বুক করা যাবে না। ক্লিনিকে ফোন করুন: ${clinicPhoneDisplay}।`;
   }
   if (error.code) {
-    return `Could not submit the request. Please try again or call the clinic at ${clinicPhoneDisplay}.`;
+    return `Could not submit the request. Please try again or call the clinic at ${clinicPhoneDisplay}. / অনুরোধ পাঠানো যায়নি। আবার চেষ্টা করুন বা ক্লিনিকে ফোন করুন: ${clinicPhoneDisplay}।`;
   }
-  return error.message || "Could not submit the request. Please try again.";
+  return error.message || "Could not submit the request. Please try again. / অনুরোধ পাঠানো যায়নি। আবার চেষ্টা করুন।";
 }
 
 function showWhatsAppHandoff(booked, patientName) {
@@ -316,7 +316,7 @@ function showWhatsAppHandoff(booked, patientName) {
     ? `Hello, this is ${firstName}. I just requested an appointment on ${when} through the website.`
     : `Hello, this is ${firstName}. I tried to book ${when} on the website but it did not go through. Can you help?`;
   els.whatsAppHandoff.href = `https://wa.me/${clinicWhatsAppNumber}?text=${encodeURIComponent(text)}`;
-  els.whatsAppHandoff.textContent = booked ? "Also tell the clinic on WhatsApp" : "Tell the clinic on WhatsApp";
+  els.whatsAppHandoff.textContent = booked ? "Also tell the clinic on WhatsApp / WhatsApp-এ ক্লিনিককে জানান" : "Tell the clinic on WhatsApp / WhatsApp-এ ক্লিনিককে জানান";
   els.whatsAppHandoff.hidden = false;
 }
 
@@ -328,7 +328,7 @@ async function bookSlot(docId, payload) {
   await firestoreSdk.runTransaction(db, async transaction => {
     const existing = await transaction.get(slotStatusRef);
     if (existing.exists() && ["pending", "booked"].includes(existing.data().status)) {
-      throw new Error("That slot was just taken. Please choose another free slot.");
+      throw new Error("That slot was just taken. Please choose another free slot. / এই সময়টি এইমাত্র বুক হয়ে গেছে। অন্য একটি খালি সময় বেছে নিন।");
     }
 
     const slotStart = firestoreSdk.Timestamp.fromDate(payload.slotStart);
